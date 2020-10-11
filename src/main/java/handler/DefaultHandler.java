@@ -1,7 +1,6 @@
 package handler;
 
-import bot.TelegramBot;
-import parser.CommandWithText;
+import common.CommandWithText;
 
 public class DefaultHandler extends AbstractHandler {
 
@@ -11,8 +10,8 @@ public class DefaultHandler extends AbstractHandler {
             "- /stop - остановить бота\n" +
             "- /help - помощь";
 
-    public DefaultHandler(TelegramBot tBot) {
-        super(tBot);
+    public DefaultHandler(/*TelegramBot tBot*/) {
+        //super(tBot);
     }
 
     @Override

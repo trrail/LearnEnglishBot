@@ -1,7 +1,4 @@
-package parser;
-
-import common.Command;
-import common.Tuple;
+package common;
 
 public class CommandWithText {
     private Tuple<Command, String> commandWithText;

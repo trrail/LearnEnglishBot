@@ -1,6 +1,6 @@
 package transport;
 
-import parser.CommandWithText;
+import common.CommandWithText;
 import parser.Parser;
 import handler.AbstractHandler;
 import handler.DefaultHandler;
@@ -62,6 +62,6 @@ public class Reciever implements Runnable {
     }
 
     private AbstractHandler getHandler() {
-        return new DefaultHandler(bot);
+        return new DefaultHandler(/*bot*/);
     }
 }

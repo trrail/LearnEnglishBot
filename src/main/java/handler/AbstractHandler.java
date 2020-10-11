@@ -1,13 +1,13 @@
 package handler;
 
 import bot.TelegramBot;
-import parser.CommandWithText;
+import common.CommandWithText;
 
 public abstract class AbstractHandler {
-    TelegramBot tBot;
+    //TelegramBot tBot;
 
-    public AbstractHandler(TelegramBot tBot) {
-        this.tBot = tBot;
+    public AbstractHandler(/*TelegramBot tBot*/) {
+        //this.tBot = tBot;
     }
 
     public abstract String operate(Long chatId, CommandWithText commandWithText);
