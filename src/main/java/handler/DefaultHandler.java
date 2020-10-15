@@ -1,46 +1,95 @@
 package handler;
 
-import common.CommandWithText;
 
-public class DefaultHandler extends AbstractHandler {
+import common.Command;
+import common.Tuple;
+import common.User;
+import parser.Parser;
 
-    private final String help = "Вот, что я могу:\n" +
-            "- /getid - получить ID чата\n" +
-            "- /talk - просто поболтать с ботом\n" +
-            "- /stop - остановить бота\n" +
-            "- /help - помощь";
+import java.util.ArrayList;
+import java.util.Hashtable;
+import java.util.Random;
 
-    public DefaultHandler(/*TelegramBot tBot*/) {
-        //super(tBot);
+public class DefaultHandler {
+    private Hashtable<Long, User> users;
+    private final String help = "help";
+    private ArrayList<Tuple<String, String>> dictLearnWords;
+    private final Random rnd = new Random();
+
+    public DefaultHandler() {
+        users = new Hashtable<>();
+        dictLearnWords = new ArrayList<>();
+        dictLearnWords.add(new Tuple<>("array", "массив"));
+        dictLearnWords.add(new Tuple<>("list", "список"));
+        dictLearnWords.add(new Tuple<>("average", "средний"));
+        dictLearnWords.add(new Tuple<>("order", "порядок"));
+        dictLearnWords.add(new Tuple<>("handler", "обработчик"));
     }
 
-    @Override
-    public String operate(Long chatId, CommandWithText commandWithText) {
-            try {
-                switch (commandWithText.getCommand()){
-                    case START:
-                        return "Привет, я твой бот-помощник\n" + help;
-                    case TALK:
-                        // TODO
-                        // дерево диалогов там анекдоты или просто как дела - хорошо а у тебя - тд
-                        // сюда будут прилетать любой текст не являющийся командой (/start - команда, а start - нет
-                        // для добавления более сложных команд надо добавлять handler и вызывать его здесь
-                        // еще сюда надо принимать chatID чтобы сохранять состояние диалога
-                        // состояния хранить в хешмапе
-                        break;
-                    case STOP:
-                        // TODO
-                        // удалить из юзеров и начинать только со старт
-                        //если останавливать самого бота то проверять на чат админа
-                        break;
-                    case GETID:
-                        return "ID чата: " + chatId.toString();
-                    default:
-                        return help;
+    public String operate(Long chatId, String query) {
+
+        switch (Parser.getCommand(query, getCurrentCommandUser(chatId))){
+            case START:
+                if (users.containsKey(chatId)){
+                    users.get(chatId).userName = query;
+                    return "Отлично, теперь можешь выбрать одну из следующих команд: /learn, /stop, /help";
                 }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        return "";
+
+                users.put(chatId, new User());
+                return "Привет! Как я могу тебя называть?";
+
+            case STOP:
+                users.get(chatId).currentCommand = Command.START;
+                users.remove(chatId);
+                return  "Пока!";
+
+            case LEARN:
+                users.get(chatId).currentCommand = Command.LEARN;
+                String startWords = "";
+                if (users.get(chatId).wordsId.isEmpty()) {
+                    startWords = "Вот твое первое слово ";
+                    users.get(chatId).wordsId.add(1);
+                    return printDict();
+                }
+
+                if (users.get(chatId).translateWord != -1) {
+                    startWords = "Очередное слово ";
+                    if (query.trim().toLowerCase().equals(dictLearnWords.get(users.get(chatId).translateWord).getValue())) {
+                        int c = rnd.nextInt(dictLearnWords.size());
+                        users.get(chatId).translateWord = c;
+                        return "Отлично, давай дальше\n Очередное слово " + dictLearnWords.get(c).getKey();
+                    }
+                    else {
+                        int tm = users.get(chatId).translateWord;
+                        users.get(chatId).translateWord = -1;
+                        return "Неправильный ответ, должен был ответить вот так " + dictLearnWords.get(tm).getValue();
+                    }
+                }
+                int t = rnd.nextInt(dictLearnWords.size());
+                users.get(chatId).translateWord = t;
+                return startWords + dictLearnWords.get(t).getKey();
+
+            default:
+                return help;
+        }
+    }
+
+    private Command getCurrentCommandUser(Long chatId){
+        User user = users.get(chatId);
+        if (user != null){
+            return user.currentCommand;
+        }
+        else{
+            return Command.NONE;
+        }
+    }
+
+    private String printDict(){
+        StringBuilder str = new StringBuilder();
+        str.append("Ознакомся со словами и их переводом\n");
+        for (Tuple<String, String> item : dictLearnWords) {
+            str.append(item.getKey() + " - " + item.getValue()+"\n");
+        }
+        return str.toString();
     }
 }

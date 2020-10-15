@@ -1,5 +1,5 @@
 package common;
 
 public enum Command {
-    NONE, TALK, STOP, START, HELP, GETID
+    START, STOP, LEARN, HELP, NONE
 }

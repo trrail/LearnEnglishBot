@@ -1,5 +1,6 @@
 package bot;
 
+import handler.DefaultHandler;
 import org.telegram.telegrambots.TelegramBotsApi;
 import org.telegram.telegrambots.api.methods.send.SendMessage;
 import org.telegram.telegrambots.api.objects.Update;
@@ -7,16 +8,11 @@ import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.exceptions.TelegramApiException;
 import org.telegram.telegrambots.exceptions.TelegramApiRequestException;
 
-import java.util.Queue;
-import java.util.concurrent.ConcurrentLinkedQueue;
-
 
 public class TelegramBot extends TelegramLongPollingBot {
     String token;
     String userName;
-
-    public final Queue<Object> send = new ConcurrentLinkedQueue<>();
-    public final Queue<Object> receive = new ConcurrentLinkedQueue<>();
+    DefaultHandler d = new DefaultHandler();
 
     public TelegramBot(String userName, String token) {
         this.userName = userName;
@@ -25,16 +21,15 @@ public class TelegramBot extends TelegramLongPollingBot {
 
     @Override
     public void onUpdateReceived(Update update) {
-//        Long chatId = update.getMessage().getChatId();
-//        String inputText = update.getMessage().getText();
-//        String message = null;
-//        try {
-//            message = logicBot.interact(inputText);
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
-//        sendMsg(chatId, message);
-        receive.add(update);
+        Long chatId = update.getMessage().getChatId();
+        String inputText = update.getMessage().getText();
+        String message = null;
+        try {
+            message = d.operate(chatId, inputText);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        sendMsg(chatId, message);
     }
 
     public synchronized void sendMsg(long chatId, String message){
