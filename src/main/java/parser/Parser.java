@@ -17,7 +17,7 @@ public class Parser {
             return Command.LEARN;
         if (query.startsWith("/help"))
             return Command.HELP;
-        if (query.startsWith("/addWord"))
+        if (query.startsWith("/add"))
             return Command.ADD;
         return currentCommand;
     }
