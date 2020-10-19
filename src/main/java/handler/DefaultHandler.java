@@ -32,7 +32,7 @@ public class DefaultHandler {
             case START:
                 if (users.containsKey(chatId)){
                     users.get(chatId).userName = query;
-                    return "Отлично, теперь можешь выбрать одну из следующих команд: /learn, /stop, /help";
+                    return "Отлично, " + users.get(chatId).userName + ", теперь можешь выбрать одну из следующих команд: /learn, /stop, /help, /addWord";
                 }
 
                 users.put(chatId, new User());
@@ -68,7 +68,10 @@ public class DefaultHandler {
                 int t = rnd.nextInt(dictLearnWords.size());
                 users.get(chatId).translateWord = t;
                 return startWords + dictLearnWords.get(t).getKey();
-
+            case ADD:
+                users.get(chatId).currentCommand = Command.ADD;
+                String[] words = query.split(" ");
+                dictLearnWords.add(new Tuple<>(words[0], words[1]));
             default:
                 return help;
         }

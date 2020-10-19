@@ -12,7 +12,7 @@ import org.telegram.telegrambots.exceptions.TelegramApiRequestException;
 public class TelegramBot extends TelegramLongPollingBot {
     String token;
     String userName;
-    DefaultHandler d = new DefaultHandler();
+    DefaultHandler defaultHandler = new DefaultHandler();
 
     public TelegramBot(String userName, String token) {
         this.userName = userName;
@@ -25,7 +25,7 @@ public class TelegramBot extends TelegramLongPollingBot {
         String inputText = update.getMessage().getText();
         String message = null;
         try {
-            message = d.operate(chatId, inputText);
+            message = defaultHandler.operate(chatId, inputText);
         } catch (Exception e) {
             e.printStackTrace();
         }
