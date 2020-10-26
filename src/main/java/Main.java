@@ -15,24 +15,24 @@ public class Main {
         List<String> tokens = read.readLines();
 
         TelegramBot bot = new TelegramBot(tokens.get(0), tokens.get(1));
-//        setAdmin(tokens.subList(2, tokens.size()));
+// setAdmin(tokens.subList(2, tokens.size()));
 
         bot.botConnect();
 
-//        sendToAdmin(bot, "Bot start");
+// sendToAdmin(bot, "Bot start");
 
     }
 
-    private static void sendToAdmin(TelegramBot bot, String text) {
-        for (Long admin : adminsChatId) {
-            bot.sendMsg(admin, text);
-        }
+//private static void sendToAdmin(TelegramBot bot, String text) {
+// for (Long admin : adminsChatId) {
+// bot.sendMsg(admin, text);
+//}
 
-    }
+//}
 
     private static void setAdmin(List<String> ids){
         for (String id: ids
-             ) {
+        ) {
             adminsChatId.add(Long.parseLong(id));
         }
     }

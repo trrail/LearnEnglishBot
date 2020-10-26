@@ -23,20 +23,12 @@ public class TelegramBot extends TelegramLongPollingBot {
     public void onUpdateReceived(Update update) {
         Long chatId = update.getMessage().getChatId();
         String inputText = update.getMessage().getText();
-        String message = null;
-        try {
-            message = defaultHandler.operate(chatId, inputText);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        sendMsg(chatId, message);
+        sendMsg(chatId, defaultHandler.operate(chatId, inputText));
     }
 
-    public synchronized void sendMsg(long chatId, String message){
-        SendMessage sendMessage = new SendMessage();
+    public synchronized void sendMsg(long chatId, SendMessage sendMessage){
         sendMessage.enableMarkdown(true);
         sendMessage.setChatId(chatId);
-        sendMessage.setText(message);
         try {
             execute(sendMessage);
         }

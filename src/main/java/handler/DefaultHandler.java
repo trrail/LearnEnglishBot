@@ -2,8 +2,10 @@ package handler;
 
 
 import common.Command;
+import common.Keyboard;
 import common.Tuple;
 import common.User;
+import org.telegram.telegrambots.api.methods.send.SendMessage;
 import parser.Parser;
 
 import java.util.ArrayList;
@@ -15,6 +17,7 @@ public class DefaultHandler {
     private final String help = "help";
     private ArrayList<Tuple<String, String>> dictLearnWords;
     private final Random rnd = new Random();
+    private Keyboard keyboard = new Keyboard();
 
     public DefaultHandler() {
         users = new Hashtable<>();
@@ -26,22 +29,24 @@ public class DefaultHandler {
         dictLearnWords.add(new Tuple<>("handler", "обработчик"));
     }
 
-    public String operate(Long chatId, String query) {
-
+    public SendMessage operate(Long chatId, String query) {
+        SendMessage sendMessage = new SendMessage();
         switch (Parser.getCommand(query, getCurrentCommandUser(chatId))){
             case START:
                 if (users.containsKey(chatId)){
                     users.get(chatId).userName = query;
-                    return "Отлично, " + users.get(chatId).userName + ", теперь можешь выбрать одну из следующих команд: /learn, /stop, /help, /add";
+                    return sendMessage.setText("Отлично, "
+                            + users.get(chatId).userName +
+                            ", теперь можешь выбрать одну из следующих команд: /learn, /stop, /help, /add");
                 }
 
                 users.put(chatId, new User());
-                return "Привет! Как я могу тебя называть?";
+                return sendMessage.setText("Привет! Как я могу тебя называть?");
 
             case STOP:
                 users.get(chatId).currentCommand = Command.START;
                 users.remove(chatId);
-                return  "Пока!";
+                return sendMessage.setText("Пока!");
 
             case LEARN:
                 users.get(chatId).currentCommand = Command.LEARN;
@@ -49,7 +54,7 @@ public class DefaultHandler {
                 if (users.get(chatId).wordsId.isEmpty()) {
                     startWords = "Вот твое первое слово ";
                     users.get(chatId).wordsId.add(1);
-                    return printDict();
+                    return sendMessage.setText(printDict());
                 }
 
                 if (users.get(chatId).translateWord != -1) {
@@ -57,26 +62,28 @@ public class DefaultHandler {
                     if (query.trim().toLowerCase().equals(dictLearnWords.get(users.get(chatId).translateWord).getValue())) {
                         int c = rnd.nextInt(dictLearnWords.size());
                         users.get(chatId).translateWord = c;
-                        return "Отлично, давай дальше\n Очередное слово " + dictLearnWords.get(c).getKey();
+                        return sendMessage.setText("Отлично, давай дальше\n Очередное слово "
+                                + dictLearnWords.get(c).getKey());
                     }
                     else {
                         int tm = users.get(chatId).translateWord;
                         users.get(chatId).translateWord = -1;
-                        return "Неправильный ответ, должен был ответить вот так " + dictLearnWords.get(tm).getValue();
+                        return sendMessage.setText("Неправильный ответ, должен был ответить вот так "
+                                + dictLearnWords.get(tm).getValue());
                     }
                 }
                 int t = rnd.nextInt(dictLearnWords.size());
                 users.get(chatId).translateWord = t;
-                return startWords + dictLearnWords.get(t).getKey();
+                return sendMessage.setText(startWords + dictLearnWords.get(t).getKey());
             case ADD:
                 users.get(chatId).currentCommand = Command.ADD;
                 if (!query.startsWith("/add")) {
                     String[] words = query.split(" ");
                     dictLearnWords.add(new Tuple<>(words[0], words[1]));
                 }
-                return "Введите <слово> <перевод>";
+                return sendMessage.setText("Введите <слово> <перевод>");
             default:
-                return help;
+                return sendMessage.setText(help);
         }
     }
 
