@@ -1,35 +1,28 @@
 package common;
 
-import java.util.HashSet;
+import automat.HandlerNode;
+
+import java.util.Random;
 
 public class User {
-    public String userName;
-    public HashSet<Integer> wordsId;
-    public Command currentCommand;
-    public Integer translateWord;
+    private String userName;
+    public Tuple<Command, HandlerNode> stateDialog;
+    public Tuple<String, Integer> stateLearn;
+    private final Random rnd;
 
-    public User(){
-        userName = "NONE";
-        currentCommand = Command.START;
-        wordsId = new HashSet<>();
-        translateWord = -1;
-    }
-
-    public User(String name, HashSet<Integer> ids, Command command){
+    public User(String name){
         userName = name;
-        wordsId = ids;
-        currentCommand = command;
+        stateDialog = new Tuple<>(Command.START, null);
+        stateLearn = new Tuple<>("", -1);
+        rnd = new Random();
     }
 
     public String getName(){
         return userName;
     }
 
-    public HashSet<Integer> getWordsId(){
-        return wordsId;
-    }
-
-    public Command getCommand(){
-        return currentCommand;
+    public int getNextIdWord(int size){
+        stateLearn.setValue(rnd.nextInt(size));
+        return stateLearn.getValue();
     }
 }
