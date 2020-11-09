@@ -1,9 +1,11 @@
 package common;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class Selection {
     private final ArrayList<Word> words;
+    private HashMap<Long, Tuple<Integer, Integer>> usersStat;
 
     public Selection(ArrayList<Word> words){
         this.words = words;
@@ -23,16 +25,44 @@ public class Selection {
         return 0;
     }
 
-    public Word getEnWord(Long userId){
+    public String getEnWord(Long userId){
         Word returningWord = this.words.get(0);
-        int maxIncStat = returningWord.getIncorrectAnswerStaticstic(userId);
+        int minimalIncStat = returningWord.getIncorrectAnswerStaticstic(userId);
         for (Word lookingWord : this.words)
         {
-            if (lookingWord.getIncorrectAnswerStaticstic(userId) > maxIncStat) {
-                maxIncStat = lookingWord.getIncorrectAnswerStaticstic(userId);
+            if (lookingWord.getIncorrectAnswerStaticstic(userId) < minimalIncStat) {
+                minimalIncStat = lookingWord.getIncorrectAnswerStaticstic(userId);
                 returningWord = lookingWord;
             }
         }
-        return returningWord;
+        return returningWord.en;
+    }
+
+    public Boolean checkTranslate(String enWord, String ruWord, Long userId){
+        assert getWordClass(enWord) != null;
+        boolean answer = getWordClass(enWord).checkFromRuToEn(userId, ruWord);
+        if (!this.usersStat.containsKey(userId))
+            this.usersStat.put(userId, new Tuple<>(0, 1));
+        Tuple<Integer, Integer> userStat = this.usersStat.get(userId);
+        if (answer)
+            userStat.setKey(userStat.getKey() + 1);
+        else
+            userStat.setValue(userStat.getValue() + 1);
+        return answer;
+    }
+
+    private Word getWordClass(String enWord){
+        Word word = null;
+        for (Word lookingWord : this.words)
+        {
+            if (lookingWord.en.equals(enWord)) {
+                word = lookingWord;
+            }
+        }
+        return word;
+    }
+
+    public double getSelectionStatistic(Long userId){
+        return this.usersStat.get(userId).getKey() * 100.0 / this.usersStat.get(userId).getValue();
     }
 }
