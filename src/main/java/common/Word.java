@@ -7,7 +7,7 @@ public class Word {
     public String ru;
     public String example;
     public int frequency;
-    public HashMap<Long, Triple<Integer, Integer, Double>> dictionary;
+    public HashMap<Long, Tuple<Integer, Integer>> dictionary;
 
     public Word(int freq, String en, String ru, String example){
         frequency = freq;
@@ -19,7 +19,7 @@ public class Word {
 
     public Boolean checkFromRuToEn(Long userId, String query){
         if (!this.dictionary.containsKey(userId))
-            this.dictionary.put(userId, new Triple<>(0, 0, 0.0));
+            this.dictionary.put(userId, new Tuple<>(0, 1));
         if(query.equals(this.ru)){
             calculateCoefficient(userId, true);
             return true;
@@ -29,15 +29,20 @@ public class Word {
     }
 
     private void calculateCoefficient(Long userId, Boolean bool){
-        int correct = this.dictionary.get(userId).getValue1();
-        int incorrect = this.dictionary.get(userId).getValue2();
+        int correct = this.dictionary.get(userId).getKey();
+        int incorrect = this.dictionary.get(userId).getValue();
         if (bool) correct += 1;
         else incorrect += 1;
         this.dictionary.remove(userId);
-        this.dictionary.put(userId, new Triple<>(correct, incorrect, correct / incorrect * 100.0));
+        this.dictionary.put(userId, new Tuple<>(correct, incorrect));
     }
 
     public double getCoefficient(Long userId){
-        return this.dictionary.get(userId).getValue3();
+        Tuple<Integer, Integer> stat = this.dictionary.get(userId);
+        return stat.getKey() * 1.0 / stat.getValue() * 100.0;
+    }
+
+    public int getIncorrectAnswerStaticstic(Long userId){
+        return this.dictionary.get(userId).getValue();
     }
 }
